@@ -26,8 +26,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 const formSchema = z.object({
   email: z.string().email(),
   password: z.string().trim().min(1, "Password is required"),
-  remember: z.boolean().optional(),
+  remember_me: z.boolean().optional(),
 });
+
 type FormSchema = z.infer<typeof formSchema>;
 
 export function LoginForm({
@@ -39,37 +40,44 @@ export function LoginForm({
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
-      password: "",
-      remember: false,
+      email: '',
+      password: '',
+      remember_me: false,
     },
   });
 
-  const onSubmit = async (values: FormSchema) => {
+  async function handleLogin(values: FormSchema) {
     try {
-      const res = await fetch("http://localhost:3000/auth/signin", {
-        method: "POST",
+      const res = await fetch('http://10.10.10.134/auth/signin', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        credentials: "include",
-        body: JSON.stringify({
-          email: values.email,
-          password: values.password,
-          remember_me: values.remember,
-        }),
+        body: JSON.stringify(values),
       });
-      console.log("Response status:", res.json());
 
-      if (res.ok) {
-        router.push("/dashboard"); // Redirect kalau sukses
-      } else {
-        console.error("Login failed");
+      if (!res.ok) {
+        alert('Login failed');
+        return;
       }
+
+      const data = await res.json();
+      const { access_token, refresh_token } = data;
+
+      if (access_token) {
+        sessionStorage.setItem('access_token', access_token);
+      }
+
+      if (refresh_token) {
+        sessionStorage.setItem('refresh_token', refresh_token);
+      }
+
+      router.push('/dashboard');
     } catch (error) {
-      console.error("An error occurred:", error);
+      console.error('Login error:', error);
+      alert('Login error');
     }
-  };
+  }
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -83,7 +91,7 @@ export function LoginForm({
         <CardContent>
           <Form {...form}>
             <form
-              onSubmit={form.handleSubmit(onSubmit)}
+              onSubmit={form.handleSubmit(handleLogin)}
               className="flex flex-col gap-6"
             >
               <FormField
@@ -98,7 +106,6 @@ export function LoginForm({
                         id="email"
                         type="email"
                         placeholder="m@example.com"
-                        required
                       />
                     </FormControl>
                     <FormMessage />
@@ -125,7 +132,6 @@ export function LoginForm({
                         id="password"
                         type="password"
                         placeholder="Enter your password"
-                        required
                       />
                     </FormControl>
                     <FormMessage />
@@ -135,7 +141,6 @@ export function LoginForm({
               <Button
                 type="submit"
                 className="w-full"
-                disabled={form.formState.isSubmitting}
               >
                 Login
               </Button>

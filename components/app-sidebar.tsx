@@ -1,117 +1,107 @@
-import {
-  Calendar,
-  ChevronUp,
-  Inbox,
-  Search,
-  Settings,
-  User2,
-  User2Icon,
-} from "lucide-react";
+"use client"
 
+import * as React from "react"
+import {
+  ArrowUpCircleIcon,
+  BarChartIcon,
+  CameraIcon,
+  ClipboardListIcon,
+  DatabaseIcon,
+  FileCodeIcon,
+  FileIcon,
+  FileTextIcon,
+  FilmIcon,
+  FolderIcon,
+  HelpCircleIcon,
+  LayoutDashboardIcon,
+  ListIcon,
+  SearchIcon,
+  SettingsIcon,
+  User2,
+  UsersIcon,
+} from "lucide-react"
+
+import { NavDocuments } from "@/components/nav-documents"
+import { NavMain } from "@/components/nav-main"
+import { NavSecondary } from "@/components/nav-secondary"
+import { NavUser } from "@/components/nav-user"
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
+} from "@/components/ui/sidebar"
+import { useUser } from "@/lib/UserContext"
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import * as UserContextModule from "@/hooks/UserContext";
+// Data placeholder untuk navigasi
+const data = {
+  user: {
+    name: "shadcn",
+    email: "m@example.com",
+    avatar: "/avatars/shadcn.jpg",
+  },
+  navMain: [
+    { title: "Dashboard", url: "/dashboard", icon: LayoutDashboardIcon },
+    { title: "Actors", url: "/dashboard/actors", icon: User2 },
+    { title: "Movies", url: "/dashboard/movies", icon: FilmIcon },
+    { title: "Projects", url: "#", icon: FolderIcon },
+    { title: "Team", url: "#", icon: UsersIcon },
+  ],
+  navClouds: [
+    { title: "Capture", icon: CameraIcon, isActive: true, url: "#", items: [] },
+    { title: "Proposal", icon: FileTextIcon, url: "#", items: [] },
+    { title: "Prompts", icon: FileCodeIcon, url: "#", items: [] },
+  ],
+  navSecondary: [
+    { title: "Settings", url: "#", icon: SettingsIcon },
+    { title: "Get Help", url: "#", icon: HelpCircleIcon },
+    { title: "Search", url: "#", icon: SearchIcon },
+  ],
+  documents: [
+    { name: "Data Library", url: "#", icon: DatabaseIcon },
+    { name: "Reports", url: "#", icon: ClipboardListIcon },
+    { name: "Word Assistant", url: "#", icon: FileIcon },
+  ],
+}
 
-// Menu items.
-const items = [
-  {
-    title: "Actors",
-    url: "/dashboard/actors",
-    icon: User2Icon,
-  },
-  {
-    title: "Inbox",
-    url: "#",
-    icon: Inbox,
-  },
-  {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: Search,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
-  },
-];
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  // Pastikan 'useUser' mengembalikan data user yang valid
+  const dataUser = useUser()
 
-export function AppSidebar() {
-  const user = UserContextModule.useUser();
-  if (!user) {
-    return <p>Loading ....</p>; // or a loading state
+  // Cek jika dataUser ada dan valid
+  if (!dataUser) {
+    return null; // Bisa tampilkan loader atau fallback jika data user tidak ditemukan
   }
 
   return (
-    <Sidebar>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-      <SidebarFooter>
+    <Sidebar collapsible="offcanvas" {...props}>
+      <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton>
-                  <User2 /> {user?.name}
-                  <ChevronUp className="ml-auto" />
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                side="top"
-                className="w-[--radix-popper-anchor-width]"
-              >
-                <DropdownMenuItem>
-                  <span>Account</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <span>Billing</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <span>Sign out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <SidebarMenuButton
+              asChild
+              className="data-[slot=sidebar-menu-button]:!p-1.5"
+            >
+              <a href="#">
+                <ArrowUpCircleIcon className="h-5 w-5" />
+                <span className="text-base font-semibold">Acme Inc.</span>
+              </a>
+            </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
+      </SidebarHeader>
+      <SidebarContent>
+        <NavMain items={data.navMain} />
+        <NavDocuments items={data.documents} />
+        <NavSecondary items={data.navSecondary} className="mt-auto" />
+      </SidebarContent>
+      <SidebarFooter>
+        {/* Pastikan dataUser diteruskan dengan benar */}
+        <NavUser user={dataUser} />
       </SidebarFooter>
     </Sidebar>
-  );
+  )
 }
