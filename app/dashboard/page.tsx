@@ -1,4 +1,4 @@
-import { useUser } from "@/lib/UserContext";
+import { useUser } from "@/hooks/UserContext";
 import { redirect } from "next/navigation";
 
 export default function Page() {

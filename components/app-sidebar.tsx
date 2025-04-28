@@ -26,7 +26,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useUser } from "@/lib/UserContext";
+import * as UserContextModule from "@/hooks/UserContext";
 
 // Menu items.
 const items = [
@@ -58,7 +58,7 @@ const items = [
 ];
 
 export function AppSidebar() {
-  const user = useUser();
+  const user = UserContextModule.useUser();
   if (!user) {
     return <p>Loading ....</p>; // or a loading state
   }
