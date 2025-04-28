@@ -24,8 +24,10 @@ interface MovieFormData {
   trailer_url: string;
   poster_url: string;
   actor_ids: number[];
-  genre_ids: number[];
+  genre_ids: string[];
 }
+
+
 
 export default function CreateMoviePage() {
   const router = useRouter();
@@ -47,35 +49,21 @@ export default function CreateMoviePage() {
   });
 
   useEffect(() => {
-    // Simulasi fetch data untuk actors dan genres
     const fetchData = async () => {
       try {
-        // Simulasi fetch actors
-        const actorsData: Actor[] = [
-          { id: 1, name: 'Iko Uwais' },
-          { id: 2, name: 'Joe Taslim' },
-          { id: 3, name: 'Nicholas Saputra' },
-          { id: 4, name: 'Tora Sudiro' },
-          { id: 5, name: 'Dian Sastrowardoyo' },
-          { id: 6, name: 'Bunga Citra Lestari' },
-          { id: 7, name: 'Reza Rahadian Matulessy' },
-          { id: 8, name: 'Alex Abdullah Abbad' }
-        ];
+        // Ambil data dari API untuk aktor
+        const actorsResponse = await fetch('http://10.10.10.134/actors', {
+            method: 'GET',
+        });
+        const actorsData = await actorsResponse.json();
         
-        // Simulasi fetch genres
-        const genresData: Genre[] = [
-          { id: 1, name: 'Slice of Life' },
-          { id: 2, name: 'Action' },
-          { id: 3, name: 'Drama' },
-          { id: 4, name: 'Romance' },
-          { id: 5, name: 'Horror' },
-          { id: 6, name: 'Thriller' },
-          { id: 7, name: 'Adventure' },
-          { id: 8, name: 'Comedy' }
-        ];
+        // Ambil data dari API untuk genre
+        const genresResponse = await fetch('http://10.10.10.134/genres', { method: 'GET' });
+        const genresData = await genresResponse.json();
         
-        setActors(actorsData);
-        setGenres(genresData);
+        // Menyimpan data ke state
+        setActors(actorsData.data);
+        setGenres(genresData.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -223,10 +211,14 @@ export default function CreateMoviePage() {
       formDataToSend.append('poster', posterFile.files[0]);
     }
   
+    console.log('FormData:', formDataToSend.get('genres'));
     try {
       // Simulasi API call untuk membuat film baru dengan menggunakan FormData
-      const response = await fetch('/api/movies', {
+      const response = await fetch('http://10.10.10.134/movies', {
         method: 'POST',
+        headers: {
+            'Authentication': `Bearer ${sessionStorage.getItem('access_token')}`,
+        },
         body: formDataToSend, // Mengirim FormData
       });
   
@@ -408,57 +400,59 @@ export default function CreateMoviePage() {
             <div>
               {/* Genres */}
               <div className="mb-6">
-                <label className={labelClasses}>
-                  Genre <span className="text-red-500">*</span>
-                </label>
-                <div className={`border rounded p-3 ${formErrors.genre_ids ? 'border-red-500' : ''}`}>
-                  <div className="grid grid-cols-2 gap-2">
-                    {genres.map(genre => (
-                      <div key={genre.id} className="flex items-center">
-                        <input
-                          type="checkbox"
-                          id={`genre-${genre.id}`}
-                          value={genre.id}
-                          checked={formData.genre_ids.includes(genre.id)}
-                          onChange={(e) => handleCheckboxChange(e, 'genre_ids')}
-                          className="mr-2"
-                        />
-                        <label htmlFor={`genre-${genre.id}`} className="text-sm">
-                          {genre.name}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                {formErrors.genre_ids && <p className={errorClasses}>{formErrors.genre_ids}</p>}
-              </div>
+  <label className={labelClasses}>
+    Genre <span className="text-red-500">*</span>
+  </label>
+  <div className={`border rounded p-3 ${formErrors.genre_ids ? 'border-red-500' : ''}`}>
+    <div className="grid grid-cols-2 gap-2">
+      {genres.map(genre => (
+        <div key={genre.id} className="flex items-center">
+          <input
+            type="checkbox"
+            id={`genre-${genre.id}`}
+            value={genre.id}
+            checked={formData.genre_ids.includes(genre.name)}
+            onChange={(e) => handleCheckboxChange(e, 'genre_ids')}
+            className="mr-2"
+          />
+          <label htmlFor={`genre-${genre.id}`} className="text-sm">
+            {genre.name}
+          </label>
+        </div>
+      ))}
+    </div>
+  </div>
+  {formErrors.genre_ids && <p className={errorClasses}>{formErrors.genre_ids}</p>}
+</div>
+
               
               {/* Actors */}
               <div className="mb-4">
-                <label className={labelClasses}>
-                  Aktor <span className="text-red-500">*</span>
-                </label>
-                <div className={`border rounded p-3 ${formErrors.actor_ids ? 'border-red-500' : ''}`}>
-                  <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto">
-                    {actors.map(actor => (
-                      <div key={actor.id} className="flex items-center">
-                        <input
-                          type="checkbox"
-                          id={`actor-${actor.id}`}
-                          value={actor.id}
-                          checked={formData.actor_ids.includes(actor.id)}
-                          onChange={(e) => handleCheckboxChange(e, 'actor_ids')}
-                          className="mr-2"
-                        />
-                        <label htmlFor={`actor-${actor.id}`} className="text-sm">
-                          {actor.name}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                {formErrors.actor_ids && <p className={errorClasses}>{formErrors.actor_ids}</p>}
-              </div>
+  <label className={labelClasses}>
+    Aktor <span className="text-red-500">*</span>
+  </label>
+  <div className={`border rounded p-3 ${formErrors.actor_ids ? 'border-red-500' : ''}`}>
+    <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto">
+      {actors.map(actor => (
+        <div key={actor.id} className="flex items-center">
+          <input
+            type="checkbox"
+            id={`actor-${actor.id}`}
+            value={actor.id}
+            checked={formData.actor_ids.includes(actor.id)}
+            onChange={(e) => handleCheckboxChange(e, 'actor_ids')}
+            className="mr-2"
+          />
+          <label htmlFor={`actor-${actor.id}`} className="text-sm">
+            {actor.name}
+          </label>
+        </div>
+      ))}
+    </div>
+  </div>
+  {formErrors.actor_ids && <p className={errorClasses}>{formErrors.actor_ids}</p>}
+</div>
+
             </div>
           </div>
           
