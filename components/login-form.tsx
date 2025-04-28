@@ -40,24 +40,26 @@ export function LoginForm({
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
       remember_me: false,
     },
   });
 
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   async function handleLogin(values: FormSchema) {
     try {
-      const res = await fetch('http://10.10.10.134/auth/signin', {
-        method: 'POST',
+      const res = await fetch(`${apiUrl}/auth/signin`, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(values),
       });
 
       if (!res.ok) {
-        alert('Login failed');
+        alert("Login failed");
         return;
       }
 
@@ -65,17 +67,17 @@ export function LoginForm({
       const { access_token, refresh_token } = data;
 
       if (access_token) {
-        sessionStorage.setItem('access_token', access_token);
+        sessionStorage.setItem("access_token", access_token);
       }
 
       if (refresh_token) {
-        sessionStorage.setItem('refresh_token', refresh_token);
+        sessionStorage.setItem("refresh_token", refresh_token);
       }
 
-      router.push('/dashboard');
+      router.push("/dashboard");
     } catch (error) {
-      console.error('Login error:', error);
-      alert('Login error');
+      console.error("Login error:", error);
+      alert("Login error");
     }
   }
 
@@ -138,10 +140,7 @@ export function LoginForm({
                   </FormItem>
                 )}
               />
-              <Button
-                type="submit"
-                className="w-full"
-              >
+              <Button type="submit" className="w-full">
                 Login
               </Button>
               <Button type="button" variant="outline" className="w-full">

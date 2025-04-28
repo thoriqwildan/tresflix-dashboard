@@ -1,9 +1,8 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   ArrowUpCircleIcon,
-  BarChartIcon,
   CameraIcon,
   ClipboardListIcon,
   DatabaseIcon,
@@ -14,17 +13,16 @@ import {
   FolderIcon,
   HelpCircleIcon,
   LayoutDashboardIcon,
-  ListIcon,
   SearchIcon,
   SettingsIcon,
   User2,
   UsersIcon,
-} from "lucide-react"
+} from "lucide-react";
 
-import { NavDocuments } from "@/components/nav-documents"
-import { NavMain } from "@/components/nav-main"
-import { NavSecondary } from "@/components/nav-secondary"
-import { NavUser } from "@/components/nav-user"
+import { NavDocuments } from "@/components/nav-documents";
+import { NavMain } from "@/components/nav-main";
+import { NavSecondary } from "@/components/nav-secondary";
+import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
   SidebarContent,
@@ -33,8 +31,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import { useUser } from "@/lib/UserContext"
+} from "@/components/ui/sidebar";
+import { useUser } from "@/lib/UserContext";
 
 // Data placeholder untuk navigasi
 const data = {
@@ -65,11 +63,11 @@ const data = {
     { name: "Reports", url: "#", icon: ClipboardListIcon },
     { name: "Word Assistant", url: "#", icon: FileIcon },
   ],
-}
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // Pastikan 'useUser' mengembalikan data user yang valid
-  const dataUser = useUser()
+  const dataUser = useUser();
 
   // Cek jika dataUser ada dan valid
   if (!dataUser) {
@@ -103,5 +101,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavUser user={dataUser} />
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }
